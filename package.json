@@ -9,7 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.13.3"
+    "express": "^4.13.3",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "body-parser": "^1.19.0"
