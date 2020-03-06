@@ -13,12 +13,21 @@ app.get("/", (req, res) => {
   res.send("Todo API Root");
 });
 
-// GET /todos
+// GET /todos?completed=true
 app.get("/todos", (req, res) => {
+    var queryParams = req.query;
+    var filteredTodos = todos;
+
+    if(queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
+        filteredTodos = _.where(filteredTodos, {completed: true});
+    } else if(queryParams.hasOwnProperty('completed') && queryParams.completed === 'false') {
+        filteredTodos = _.where(filteredTodos, {completed: false});
+    }
+
   // Alternative to avoid using JSON.stringify() or JSON.parse().
   // This takes the parameter we want sent back to the caller (client/browser).
-  // The conversion to JSON is implicit
-  res.json(todos);
+  // The conversion to JSON is implicit  
+  res.json(filteredTodos);
 });
 
 // GET /todos/:id
