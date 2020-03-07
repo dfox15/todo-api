@@ -24,6 +24,11 @@ app.get("/todos", (req, res) => {
         filteredTodos = _.where(filteredTodos, {completed: false});
     }
 
+    if(queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
+      filteredTodos = _.filter(filteredTodos, (todo) => {
+        return todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;
+      });
+    }
   // Alternative to avoid using JSON.stringify() or JSON.parse().
   // This takes the parameter we want sent back to the caller (client/browser).
   // The conversion to JSON is implicit  
