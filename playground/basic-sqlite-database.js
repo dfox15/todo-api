@@ -22,7 +22,7 @@ var Todo = sequelize.define('todo', {
 
 sequelize.sync({
         // force: true
-    }).then(function() {
+    }).then(() => {
         console.log('Everything is synced');
 
         Todo.findByPk(2).then(function(todo) {
@@ -63,5 +63,3 @@ sequelize.sync({
         //         console.log(e);
         //     });
         });
-
-    
