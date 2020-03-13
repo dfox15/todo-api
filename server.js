@@ -3,6 +3,9 @@ var bodyParser = require("body-parser");
 var _ = require("underscore");
 var db = require("./db.js");
 
+var Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+
 var app = express();
 var PORT = process.env.PORT || 3000;
 var todos = [];
@@ -16,34 +19,29 @@ app.get("/", (req, res) => {
 
 // GET /todos?completed=true
 app.get("/todos", (req, res) => {
-    var queryParams = req.query;
-    var filteredTodos = todos;
+    var query = req.query;
+    var where = {};
 
-    if (
-        queryParams.hasOwnProperty("completed") &&
-        queryParams.completed === "true"
-    ) {
-        filteredTodos = _.where(filteredTodos, { completed: true });
-    } else if (
-        queryParams.hasOwnProperty("completed") &&
-        queryParams.completed === "false"
-    ) {
-        filteredTodos = _.where(filteredTodos, { completed: false });
+    if (query.hasOwnProperty('completed') && query.completed === 'true') {
+        where.completed = true;
+    } else if (query.hasOwnProperty('completed') && query.completed === 'false') {
+        where.completed = false;
     }
 
-    if (queryParams.hasOwnProperty("q") && queryParams.q.length > 0) {
-        filteredTodos = _.filter(filteredTodos, todo => {
-            return (
-                todo.description
-                    .toLowerCase()
-                    .indexOf(queryParams.q.toLowerCase()) > -1
-            );
-        });
+    if (query.hasOwnProperty('q') && query.q.length > 0) {
+
+        where.description = {            
+            [Op.like] : '%' + query.q + '%'
+        };
     }
-    // Alternative to avoid using JSON.stringify() or JSON.parse().
-    // This takes the parameter we want sent back to the caller (client/browser).
-    // The conversion to JSON is implicit
-    res.json(filteredTodos);
+
+    db.todo.findAll({where: where})
+        .then((todos) => {
+            res.json(todos);
+    }, (e) => {
+        res.status(500).json(e);
+    });
+    
 });
 
 // GET /todos/:id
