@@ -56,7 +56,7 @@ app.get('/todos/:id', (req, res) => {
         }
     }, (e) => {
       res.status(500).send();
-    })
+    });
 });
 
 // POST /todos
