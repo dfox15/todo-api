@@ -48,7 +48,7 @@ app.get('/todos', (req, res) => {
 app.get('/todos/:id', (req, res) => {
     var todoId = parseInt(req.params.id, 10);
 
-    db.todo.findByPk(todoId).then((todo) => {
+    db.todo.findById(todoId).then((todo) => {
       if (!!todo) {
           res.json(todo.toJSON());
         } else {
