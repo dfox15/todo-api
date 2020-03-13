@@ -1,7 +1,7 @@
-var express = require("express");
-var bodyParser = require("body-parser");
-var _ = require("underscore");
-var db = require("./db.js");
+var express = require('express');
+var bodyParser = require('body-parser');
+var _ = require('underscore');
+var db = require('./db.js');
 
 var Sequelize = require('sequelize');
 const Op = Sequelize.Op;
@@ -13,12 +13,12 @@ var todoNextId = 1;
 
 app.use(bodyParser.json());
 
-app.get("/", (req, res) => {
-    res.send("Todo API Root");
+app.get('/', (req, res) => {
+    res.send('Todo API Root');
 });
 
 // GET /todos?completed=true
-app.get("/todos", (req, res) => {
+app.get('/todos', (req, res) => {
     var query = req.query;
     var where = {};
 
@@ -45,7 +45,7 @@ app.get("/todos", (req, res) => {
 });
 
 // GET /todos/:id
-app.get("/todos/:id", (req, res) => {
+app.get('/todos/:id', (req, res) => {
     var todoId = parseInt(req.params.id, 10);
 
     db.todo.findByPk(todoId).then((todo) => {
@@ -60,8 +60,8 @@ app.get("/todos/:id", (req, res) => {
 });
 
 // POST /todos
-app.post("/todos", (req, res) => {
-    var body = _.pick(req.body, "description", "completed");
+app.post('/todos', (req, res) => {
+    var body = _.pick(req.body, 'description', 'completed');
 
     db.todo.create(body).then(
         todo => {
@@ -75,12 +75,12 @@ app.post("/todos", (req, res) => {
 });
 
 // DELETE /todos/:id
-app.delete("/todos/:id", (req, res) => {
+app.delete('/todos/:id', (req, res) => {
     var todoId = parseInt(req.params.id, 10);
     var matchedTodo = _.findWhere(todos, { id: todoId });
 
     if (!matchedTodo) {
-        res.status(404).json({ error: "no todo found with that id" });
+        res.status(404).json({ error: 'no todo found with that id' });
     } else {
         todos = _.without(todos, matchedTodo);
         res.json(matchedTodo);
@@ -88,8 +88,8 @@ app.delete("/todos/:id", (req, res) => {
 });
 
 // PUT /todos/:id
-app.put("/todos/:id", (req, res) => {
-    var body = _.pick(req.body, "description", "completed");
+app.put('/todos/:id', (req, res) => {
+    var body = _.pick(req.body, 'description', 'completed');
     var todoId = parseInt(req.params.id, 10);
     var matchedTodo = _.findWhere(todos, { id: todoId });
     var validAttributes = {};
@@ -98,19 +98,19 @@ app.put("/todos/:id", (req, res) => {
         return res.status(404).send();
     }
 
-    if (body.hasOwnProperty("completed") && _.isBoolean(body.completed)) {
+    if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
         validAttributes.completed = body.completed;
-    } else if (body.hasOwnProperty("completed")) {
+    } else if (body.hasOwnProperty('completed')) {
         return res.status(400).send();
     }
 
     if (
-        body.hasOwnProperty("description") &&
+        body.hasOwnProperty('description') &&
         _.isString(body.description) &&
         body.description.trim().length > 0
     ) {
         validAttributes.description = body.description;
-    } else if (body.hasOwnProperty("description")) {
+    } else if (body.hasOwnProperty('description')) {
         return res.status(400).send();
     }
 
@@ -120,6 +120,6 @@ app.put("/todos/:id", (req, res) => {
 
 db.sequelize.sync().then(() => {
     app.listen(PORT, () => {
-        console.log("Express listening on port " + PORT + "!");
+        console.log('Express listening on port ' + PORT + '!');
     });
 });
