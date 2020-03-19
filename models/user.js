@@ -1,9 +1,9 @@
-var bcrypt = require("bcrypt");
-var _ = require("underscore");
+var bcrypt = require('bcrypt');
+var _ = require('underscore');
 
 module.exports = (sequelize, DataTypes) => {
     return sequelize.define(
-        "user",
+        'user',
         {
             email: {
                 type: DataTypes.STRING,
@@ -29,18 +29,41 @@ module.exports = (sequelize, DataTypes) => {
                     var salt = bcrypt.genSaltSync(10);
                     var hashedPassword = bcrypt.hashSync(value, salt);
 
-                    this.setDataValue("password", value);
-                    this.setDataValue("salt", salt);
-                    this.setDataValue("password_hash", hashedPassword);
+                    this.setDataValue('password', value);
+                    this.setDataValue('salt', salt);
+                    this.setDataValue('password_hash', hashedPassword);
                 }
             }
         },
         {
             hooks: {
                 beforeValidate: (user, options) => {
-                    if (typeof user.email === "string") {
+                    if (typeof user.email === 'string') {
                         user.email = user.email.toLowerCase();
                     }
+                }
+            },
+            classMethods: {
+                authenticate: function(body) {
+                    return new Promise(function(resolve, reject) {
+                        if (typeof body.email !== 'string' || typeof body.password !== 'string') {
+                            return reject();
+                        }
+    
+                        user.findOne({
+                            where: {
+                                email: body.email
+                            }
+                        }).then(function(user) {
+                            if (!user || !bcrypt.compareSync(body.password, user.get('password_hash'))) {
+                                return reject();
+                            }
+    
+                            resolve(user);
+                        }, function(e) {
+                            reject();
+                        });
+                    });
                 }
             },
             instanceMethods: {
@@ -48,10 +71,10 @@ module.exports = (sequelize, DataTypes) => {
                     var json = this.toJSON();
                     return _.pick(
                         json,
-                        "id",
-                        "email",
-                        "updatedAt",
-                        "createdAt"
+                        'id',
+                        'email',
+                        'updatedAt',
+                        'createdAt'
                     );
                 }
             }
