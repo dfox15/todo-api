@@ -1,8 +1,8 @@
 var bcrypt = require('bcrypt');
 var _ = require('underscore');
 
-module.exports = (sequelize, DataTypes) => {
-    return sequelize.define(
+module.exports = function (sequelize, DataTypes) {
+	var user = sequelize.define(
         'user',
         {
             email: {
@@ -37,7 +37,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             hooks: {
-                beforeValidate: (user, options) => {
+                beforeValidate: function(user, options) {
+                    // user.email
                     if (typeof user.email === 'string') {
                         user.email = user.email.toLowerCase();
                     }
@@ -49,35 +50,33 @@ module.exports = (sequelize, DataTypes) => {
                         if (typeof body.email !== 'string' || typeof body.password !== 'string') {
                             return reject();
                         }
-    
                         user.findOne({
-                            where: {
-                                email: body.email
-                            }
-                        }).then(function(user) {
-                            if (!user || !bcrypt.compareSync(body.password, user.get('password_hash'))) {
-                                return reject();
-                            }
-    
-                            resolve(user);
-                        }, function(e) {
-                            reject();
-                        });
+                                where: {
+                                    email: body.email
+                                }
+                            })
+                            .then(
+                                function(user) {
+                                    if (!user || !bcrypt.compareSync(body.password, user.get('password_hash'))) {
+                                        return reject();
+                                    }
+
+                                    resolve(user);
+                                },
+                                function(e) {
+                                    reject();
+                                }
+                            );
                     });
                 }
             },
             instanceMethods: {
                 toPublicJSON: function() {
                     var json = this.toJSON();
-                    return _.pick(
-                        json,
-                        'id',
-                        'email',
-                        'updatedAt',
-                        'createdAt'
-                    );
+                    return _.pick(json, 'id', 'email', 'createdAt', 'updatedAt');
                 }
             }
         }
     );
+    return user;
 };
